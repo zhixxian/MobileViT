@@ -73,34 +73,3 @@ test_dataloader = DataLoader(
     batch_size=batch_size,
     shuffle=False
 )
-
-train_transform = transforms.Compose([
-                transforms.ToTensor(),
-                transforms.Resize((400, 400))])
-
-test_transform =transforms.Compose([
-                transforms.ToTensor(),
-                transforms.Resize((400, 400))])
-
-
-train_dataset=Cifar100CustomDataset(img_path='/HDD/zhixian/Cifar100/train_images',
-                                    annotation='/HDD/zhixian/Cifar100/train.csv',
-                                    transform=train_transform)
-test_dataset=Cifar100CustomDataset(img_path='/HDD/zhixian/Cifar100/test_images',
-                                    annotation='/HDD/zhixian/Cifar100/test.csv',
-                                    transform=test_transform)
-
-train_dataloader = DataLoader(
-    train_dataset, 
-    batch_size=batch_size,
-    transform=train_transform,
-    shuffle=False,
-    # num_workers=4
-)
-
-test_dataloader = DataLoader(
-    test_dataset, 
-    batch_size=batch_size,
-    transform=test_transform,
-    shuffle=False
-)
