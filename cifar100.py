@@ -15,11 +15,12 @@ import torchvision.transforms as transforms
 from torchvision.transforms import ToTensor
 from torch.autograd import Variable
 from torch.utils.data import DataLoader,Dataset
+import os
 
 batch_size = 64
 
-class Cifar100CustomDataset(Dataset.ImageFolder):
-    def __init__(self, img_path, annotation, transform = None):
+class Cifar100CustomDataset(Dataset):
+    def init(self, img_path, annotation, transform = None):
         '''
         self.img_path = 이미지 폴더 경로
         self.annotation = 라벨 csv 파일 경로
@@ -28,33 +29,29 @@ class Cifar100CustomDataset(Dataset.ImageFolder):
         self.annotation = pd.read_csv(annotation)
         self.transform = transform
         
-    def __len__(self):
+    def len(self):
         return len(self.annotation)
     
-    def __getitem__(self,idx):
-        if torch.is_tensor(idx):
-            idx = idx.tolist()
+    def getitem(self,idx):
             
-        img_name = os.path.join(self.img_path, str(self.annotation.iloc[:]['image_id'])) # 이미지를 불러오기 위해 이미지 path와 jpg 이름 합쳐줌
+        img_name = os.path.join(self.img_path, str(self.annotation.iloc[idx]['image_id'])) # 이미지를 불러오기 위해 이미지 path와 jpg 이름 합쳐줌
         image = io.imread(img_name)
         label = self.annotation.iloc[:]['fine_label_names'] # train.csv에서 라벨 부분만 갖고옴
         label = np.array([label]) # 라벨 배열로 갖고오기
-        
+
         sample = {'image':image, 'label':label}
         
         if self.transform:
-            sample = self.transform(sample)
-            
-        return sample
+            sample['image'] = self.transform(sample['image'])
+         
+        return sample['image'], sample['label']
 
 train_transform = transforms.Compose([
                 transforms.ToTensor(),
-                transforms.ToPILImage(),
                 transforms.Resize((400, 400))])
 
 test_transform =transforms.Compose([
                 transforms.ToTensor(),
-                transforms.ToPILImage(),
                 transforms.Resize((400, 400))])
 
 
@@ -74,5 +71,36 @@ train_dataloader = DataLoader(
 test_dataloader = DataLoader(
     test_dataset, 
     batch_size=batch_size,
+    shuffle=False
+)
+
+train_transform = transforms.Compose([
+                transforms.ToTensor(),
+                transforms.Resize((400, 400))])
+
+test_transform =transforms.Compose([
+                transforms.ToTensor(),
+                transforms.Resize((400, 400))])
+
+
+train_dataset=Cifar100CustomDataset(img_path='/HDD/zhixian/Cifar100/train_images',
+                                    annotation='/HDD/zhixian/Cifar100/train.csv',
+                                    transform=train_transform)
+test_dataset=Cifar100CustomDataset(img_path='/HDD/zhixian/Cifar100/test_images',
+                                    annotation='/HDD/zhixian/Cifar100/test.csv',
+                                    transform=test_transform)
+
+train_dataloader = DataLoader(
+    train_dataset, 
+    batch_size=batch_size,
+    transform=train_transform,
+    shuffle=False,
+    # num_workers=4
+)
+
+test_dataloader = DataLoader(
+    test_dataset, 
+    batch_size=batch_size,
+    transform=test_transform,
     shuffle=False
 )
