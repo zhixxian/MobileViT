@@ -12,6 +12,7 @@ import argparse
 
 from mobilevit import *
 from cifar100 import *
+# from cifar import *
 from utils import progress_bar
 
 
@@ -30,38 +31,6 @@ print('==> Preparing data..')
 
 img_mean = [0.485, 0.456, 0.406]
 img_std = [0.229, 0.224, 0.225]
-
-# train_transform = transforms.Compose([
-#                 transforms.ToPILImage(),
-#                 transforms.Resize(400, 400),
-#                 transforms.ToTensor(),
-#                 transforms.Normalize(img_mean, img_std)])
-
-# test_transform =transforms.Compose([
-#                 transforms.ToPILImage(),
-#                 transforms.Resize(400, 400),
-#                 transforms.ToTensor(),
-#                 transforms.Normalize(img_mean, img_std)])
-
-# train_dataset=Cifar100CustomDataset(img_path='/HDD/zhixian/Cifar100/train_images/*.png',
-#                                     annotation='/HDD/zhixian/Cifar100/train.csv',
-#                                     transform=train_transform)
-# test_dataset=Cifar100CustomDataset(img_path='/HDD/zhixian/Cifar100/test_images/*.png',
-#                                     annotation='/HDD/zhixian/Cifar100/test.csv',
-#                                     transform=test_transform)
-
-
-# train_dataloader = DataLoader(
-#     train_dataset, 
-#     batch_size=batch_size,
-#     shuffle=True
-# )
-
-# test_dataloader = DataLoader(
-#     test_dataset, 
-#     batch_size=4,
-#     shuffle=True
-# )
 
 # Model
 print('==> Building model..')
@@ -96,7 +65,9 @@ def train(epoch):
     correct = 0
     total = 0
     for batch_idx, (inputs, targets) in enumerate(train_dataloader):
-        inputs, targets = inputs.to(device), targets.to(device)
+        inputs = inputs.to(device)
+        # targets = targets.to(device)
+        targets = torch.tensor(targets).to(device)
         optimizer.zero_grad()
         outputs = net(inputs)
         loss = criterion(outputs, targets)
@@ -120,7 +91,8 @@ def test(epoch):
     total = 0
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(test_dataloader):
-            inputs, targets = inputs.to(device), targets.to(device)
+            inputs = inputs.to(device)
+            targets = targets.to(device)
             outputs = net(inputs)
             loss = criterion(outputs, targets)
 
